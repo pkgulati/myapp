@@ -1,0 +1,141 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/app-route/app-location.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+
+<link rel="import" href="../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
+
+<link rel="import" href="./suggestions-page.html">
+
+<dom-module id="main-app">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+
+      .avatar-container {
+        position: relative;
+        border: 2px solid #00AA8D;
+        border-radius: 50%;
+        height: 90px;
+        padding: 2px;
+        width: 90px;
+        margin: 20px auto;
+      }
+
+      .avatar-container .image {
+        background-image: url('//app-layout-assets.appspot.com/assets/pesto/avatar.jpg');
+        background-size: contain;
+        border-radius: 50%;
+        height: 100%;
+        width: 100%;
+      }
+      app-drawer-layout:not([narrow]) [drawer-toggle] {
+        display: none;
+      }
+    </style>
+
+    <app-location route="{{_route}}"></app-location>
+    <app-route route="{{_route}}" pattern="/:page" data="{{_pageData}}" tail="{{_subRoute}}"></app-route>
+    <app-route route="{{_subRoute}}" pattern="/:id" data="{{_idData}}"></app-route>
+
+    <app-drawer-layout responsive-width="1280px">
+      <!-- nav panel -->
+      <app-drawer id="drawer" swipe-open slot="drawer">
+        <app-header-layout has-scrolling-region>
+          <!-- This is side navigation om condense mode-->
+          <app-header fixed slot="header">
+            <div class="avatar-container">
+              <div class="image"></div>
+            </div>
+            <div class="contact-info">
+              <div class="name">Jonathan</div>
+              <div class="email">heyfromjonathan@gmail.com</div>
+            </div>
+          </app-header>
+        </app-header-layout>
+      </app-drawer>
+
+      <iron-pages selected="[[_selectedPage]]" attr-for-selected="name">
+        <suggestions-page name="home">
+            <paper-icon-button icon="app:menu" drawer-toggle slot="drawer-toggle"></paper-icon-button>
+        </suggestions-page>
+      </iron-pages>
+    </app-drawer-layout>
+
+  </template>
+
+  <script>
+    /**
+     * @customElement
+     * @polymer
+     */
+    class MainApp extends Polymer.Element {
+      static get is() { return 'main-app'; }
+      static get properties() {
+        return {
+          prop1: {
+            type: String,
+            value: 'main-app'
+          },
+          _route: Object,
+
+          _subRoute: Object,
+
+          _pageData: {
+            type: Object,
+            observer: '_pageDataChanged'
+          },
+          _selectedPage: String,
+          _idData: Object,
+
+          _scrollPositionMap: {
+            type: Object,
+            value: function () {
+              return {};
+            }
+          }
+        };
+      }
+
+      ready() {
+        console.log('main app ready');
+        super.ready();
+      }
+      connectedCallback() {
+        super.connectedCallback();
+        var self = this;
+        Polymer.Async.microTask.run(function () {
+          if (!self._route.path) {
+            self.set('_route.path', '/home');
+          }
+        });
+      }
+
+      _pageDataChanged(pageData, oldPageData) {
+        var map = this._scrollPositionMap;
+        if (oldPageData != null && oldPageData.page != null) {
+          map[oldPageData.page] = window.pageYOffset;
+        }
+        this._selectedPage = pageData.page;
+        if (map[pageData.page] != null) {
+          Polymer.AppLayout.scroll({ top: map[pageData.page], behavior: 'silent' });
+        } else if (this.isAttached) {
+          Polymer.AppLayout.scroll({ top: 0, behavior: 'silent' });
+        }
+      }
+
+    }
+
+    window.customElements.define(MainApp.is, MainApp);
+  </script>
+</dom-module>

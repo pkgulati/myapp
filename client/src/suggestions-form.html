@@ -1,0 +1,119 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<dom-module id="suggestions-form">
+
+    <template>
+
+        <style include="shared-styles iron-flex iron-flex-alignment">
+            :host {
+                display: block;
+                background-color: white;
+                text-align: left;
+            }
+
+            .form-container {
+                margin: 16px;
+            }
+
+            paper-button {
+                margin-top: 32px;
+            }
+
+            paper-input {
+                min-width: 200px;
+                max-width: 500px;
+            }
+
+            paper-input {
+                margin-right: 16px;
+            }
+
+            paper-dialog {
+                width: 60vw;
+                height: 300px;
+                overflow: auto;
+            }
+
+            paper-toast {
+                --paper-toast-background-color: var(--primary-color);
+                --paper-toast-color: white;
+            }
+        </style>
+
+        <paper-dialog id="modal" modal>
+            <div class="layout center-center vertical">
+                <p>Thanks for your valuable suggestion, </p>
+                <paper-button primary dialog-confirm autofocus>OK</paper-button>
+            </div>
+        </paper-dialog>
+
+        <paper-toast id="toast" class="fit-bottom" fit-bottom duration="3000">
+                <p>Thanks for your valuable suggestion </p>
+        </paper-toast>
+
+        <div class="form-container">
+            <iron-form id="form">
+                <form>
+                    <div class="layout horizontal wrap row">
+                        <paper-input class="flex" on-input="clearError" error-message="please enter your name" always-float-label required label="Name"
+                            value={{data.name}}></paper-input>
+                        <paper-input class="flex" always-float-label label="Email/Phone" value={{data.emailOrPhone}}></paper-input>
+                    </div>
+                    <paper-textarea always-float-label on-input="clearError" rows=1 error-message="please enter your suggestion" required label="Suggestion"
+                        value={{data.text}}></paper-textarea>
+                    <div class="layout horizontal center center-center">
+                        <paper-button primary raised on-tap="save">Submit</paper-button>
+                    </div>
+                </form>
+            </iron-form>
+
+            <iron-ajax id="xhr" url="[[rootPath]]api/suggestions" content-type="application/json"  method="POST" on-response="handleResponse"
+                reject-with-request debounce-duration="300">
+            </iron-ajax>
+        </div>
+
+
+    </template>
+    <script>
+        class SuggestionForm extends Polymer.Element {
+            static get is() { return 'suggestions-form'; }
+
+            static get properties() {
+                return {
+                    data: {
+                        type: Object,
+                        value: function () {
+                            return {};
+                        }
+                    }
+                }
+            }
+
+            save() {
+                var ret = this.$.form.validate();
+                if (ret) {
+                    this.data.time = Date.now();
+                    this.$.xhr.body = JSON.stringify(this.data);
+                    let request = this.$.xhr.generateRequest();
+                    request.completes.then(function (req) {
+                        // succesful request, argument is iron-request element
+                    }, function (rejected) {
+                        // failed request, argument is an object
+                        let req = rejected.request;
+                        let error = rejected.error;
+                    }
+                    )
+                }
+            }
+
+            clearError(e) {
+                e.currentTarget.set('invalid', false);
+            }
+            handleResponse(res) {
+                this.set("data.text", "");
+                this.$.toast.show();
+            }
+        }
+        customElements.define(SuggestionForm.is, SuggestionForm);
+    </script>
+</dom-module>

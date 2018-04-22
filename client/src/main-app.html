@@ -1,0 +1,201 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
+<link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../bower_components/app-layout/demo/sample-content.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-input/paper-textarea.html">
+<link rel="import" href="../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../bower_components/app-route/app-location.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/app-route/app-location.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
+
+
+<dom-module id="main-app">
+
+    <template>
+
+        <style is="custom-style" include="app-theme"></style>
+        <style include="shared-styles iron-flex iron-flex-alignment">
+            a {
+                text-decoration: none;
+                font-size: inherit;
+                color: inherit;
+            }
+
+            app-drawer-layout:not([narrow]) [drawer-toggle] {
+                display: none;
+            }
+
+            .paper-item-link {
+                color: inherit;
+                text-decoration: none;
+            }
+
+        </style>
+
+        <app-location route="{{_route}}"></app-location>
+        <app-route route="{{_route}}" pattern="/:page" data="{{_pageData}}" tail="{{_subRoute}}"></app-route>
+        <app-route route="{{_subRoute}}" pattern="/:id" data="{{_idData}}"></app-route>
+
+        <app-drawer-layout responsive-width="1280px">
+            <!-- nav panel -->
+            <app-drawer id="drawer" swipe-open slot="drawer">
+                <app-header-layout has-scrolling-region>
+                    <!-- This is side navigation om condense mode-->
+                    <app-header fixed slot="header">
+                        <div class="avatar-container">
+                            <div class="image"></div>
+                        </div>
+                        <div class="contact-info">
+                            <div class="name">Jonathan</div>
+                            <div class="email">heyfromjonathan@gmail.com</div>
+                        </div>
+                    </app-header>
+                </app-header-layout>
+            </app-drawer>
+
+            <div role="listbox">
+                <a class="paper-item-link" href="/home" tabindex="-1">
+                    <paper-item>Home</paper-item>
+                </a>
+                <a class="paper-item-link" href="/suggestions" tabindex="-1">
+                    <paper-item>Suggestions</paper-item>
+                </a>
+                <a class="paper-item-link" href="/todo" tabindex="-1">
+                    <paper-item>ToDo</paper-item>
+                </a>
+            </div>
+
+            <iron-pages selected="[[_selectedPage]]" attr-for-selected="name">
+                <div name="home">Inside home</div>
+                <div name="suggestions">Inside suggestions</div>
+                <!-- <suggestions-page name="home">
+                      <paper-icon-button icon="app:menu" drawer-toggle slot="drawer-toggle"></paper-icon-button>
+                  </suggestions-page> -->
+            </iron-pages>
+        </app-drawer-layout>
+
+    </template>
+
+    <script>
+        /**
+         * @customElement
+         * @polymer
+         */
+        class MainApp extends Polymer.Element {
+            static get is() { return 'main-app'; }
+            static get properties() {
+                return {
+                    prop1: {
+                        type: String,
+                        value: 'main-app'
+                    },
+                    _route: Object,
+
+                    _subRoute: Object,
+
+                    _pageData: {
+                        type: Object,
+                        reflectToAttribute: true,
+                        observer: '_pageDataChanged'
+                    },
+                    _selectedPage: String,
+                    _idData: Object,
+
+                    _scrollPositionMap: {
+                        type: Object,
+                        value: function () {
+                            return {};
+                        }
+                    }
+                };
+            }
+
+            static get observers() {
+                return [
+                    '_routePageChanged(routeData.page)',
+                ];
+            }
+
+            _routePageChanged(page) {
+                // If no page was found in the route data, page will be an empty string.
+                // Default to 'view1' in that case.
+                this.page = page || '/home';
+                // Close a non-persistent drawer when the page & route are changed.
+                if (!this.$.drawer.persistent) {
+                    this.$.drawer.close();
+                }
+            }
+
+            ready() {
+                super.ready();
+            }
+
+            connectedCallback() {
+                super.connectedCallback();
+                var self = this;
+                Polymer.Async.microTask.run(function () {
+                    if (self._route) {
+                        if (!self._route.path) {
+                            self.set('_route.path', '/home');
+                        }
+                    }
+                });
+            }
+
+            handleResponse(e) {
+                console.log('ok');
+            }
+
+            _pageDataChanged(pageData, oldPageData) {
+                console.log('_pageDataChanged sets _selectedPage');
+                var map = this._scrollPositionMap;
+                if (oldPageData != null && oldPageData.page != null) {
+                    map[oldPageData.page] = window.pageYOffset;
+                }
+                this._selectedPage = pageData.page;
+                if (map[pageData.page] != null) {
+                    Polymer.AppLayout.scroll({ top: map[pageData.page], behavior: 'silent' });
+                } else if (this.isAttached) {
+                    Polymer.AppLayout.scroll({ top: 0, behavior: 'silent' });
+                }
+            }
+        }
+
+        window.customElements.define(MainApp.is, MainApp);
+    </script>
+
+</dom-module>

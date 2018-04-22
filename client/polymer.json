@@ -1,0 +1,26 @@
+{
+  "lint": {
+    "rules": [
+      "polymer-2"
+    ]
+  },
+  "entrypoint": "index.html",
+  "shell": "src/main-app.html",
+  "fragments": [
+    "src/suggestions-page.html"
+  ],
+  "sources": [
+    "src/**/*",
+    "data/**/*",
+    "images/**/*"
+  ],
+  "extraDependencies": [
+    "manifest.json",
+    "bower_components/webcomponentsjs/*"
+  ],
+  "builds": [
+    {
+      "preset": "es5-bundled"
+    }
+  ]
+}
